@@ -49,6 +49,9 @@ public class LargeSimpleGraphPanel extends javax.swing.JPanel implements Validat
      */
     public LargeSimpleGraphPanel() {
         initComponents();
+        showButtonGroup.add(showDensityRadioButton);
+        showButtonGroup.add(showCumulativeDensityRadioButton);
+        showButtonGroup.add(showBothRadioButton);
     }
 
     void getFields(LargeSimpleGraph generator) {
@@ -57,6 +60,14 @@ public class LargeSimpleGraphPanel extends javax.swing.JPanel implements Validat
             generator.setMaxDegree(Integer.parseInt(maxDegreeTextField.getText()));
             generator.setMinDegree(Integer.parseInt(minDegreeTextField.getText()));
             generator.setNumberOfNodes(Integer.parseInt(nodesTextField.getText()));
+            generator.setShuffleRate(Double.parseDouble(shuffleTextField.getText()));
+            if (showDensityRadioButton.isSelected()) {
+                generator.setTypeOfReport(previewType.DEGREE_REPORT);
+            } else if (showCumulativeDensityRadioButton.isSelected()) {
+                generator.setTypeOfReport(previewType.CUMULATIVE_DEGREE_REPORT);
+            } else if (showBothRadioButton.isSelected()) {
+                generator.setTypeOfReport(previewType.BOTH_REPORT);
+            }
         } catch (Exception ex) {
         }
     }
@@ -66,18 +77,48 @@ public class LargeSimpleGraphPanel extends javax.swing.JPanel implements Validat
         minDegreeTextField.setText(Integer.toString(generator.getMinDegree()));;
         maxDegreeTextField.setText(Integer.toString(generator.getMaxDegree()));
         nodesTextField.setText(Integer.toString(generator.getNumberOfNodes()));
-        updateExample();
+        shuffleTextField.setText(Double.toString(generator.getShuffleRate()));
+
+        switch (generator.getTypeOfReport()) {
+            case DEGREE_REPORT:
+                showDensityRadioButton.setSelected(true);
+                break;
+            case CUMULATIVE_DEGREE_REPORT:
+                showCumulativeDensityRadioButton.setSelected(true);
+                break;
+            case BOTH_REPORT:
+                showBothRadioButton.setSelected(true);
+                break;
+        }
+        updateExample(true);
     }
 
-    void updateExample() {
+    void updateExample(boolean recalc) {
+        if (recalc) {
+            generateReport();
+        }
         jEditorPane1.setContentType("text/html;");
-        jEditorPane1.setText(generateReport());
+        if (showBothRadioButton.isSelected()) {
+            jEditorPane1.setText(degreeBothReport);
+        } else if (showDensityRadioButton.isSelected()) {
+            jEditorPane1.setText(degreeReport);
+        } else if (showCumulativeDensityRadioButton.isSelected()) {
+            jEditorPane1.setText(cumulativeDegreeReport);
+        }
         jEditorPane1.setCaretPosition(0);
     }
-
     //html code with png picture of table for example button
-    String generateReport() {
+    private String degreeReport;
+    private String cumulativeDegreeReport;
+    private String degreeBothReport;
+
+    void generateReport() {
         HashMap<Integer, Integer> degreeDist = new HashMap<Integer, Integer>();
+        HashMap<Integer, Integer> degreeCumulativeDist = new HashMap<Integer, Integer>();
+
+
+        HashMap<Integer, Integer> degreeDist2 = new HashMap<Integer, Integer>();
+        HashMap<Integer, Integer> degreeCumulativeDist2 = new HashMap<Integer, Integer>();
 
         int minDegree = Math.max(1, Integer.parseInt(minDegreeTextField.getText()));
         int maxDegree = Math.min(Integer.parseInt(nodesTextField.getText()) - 1, Integer.parseInt(maxDegreeTextField.getText()));
@@ -86,44 +127,83 @@ public class LargeSimpleGraphPanel extends javax.swing.JPanel implements Validat
         int n = Integer.parseInt(nodesTextField.getText());
         for (int i = 0; i < n; i++) {
             count[random.nextPowerLaw(minDegree, maxDegree, Double.parseDouble(exponentTextField.getText()))]++;
-        }
+            }
         long sumOfEdges = 0;
         int sumOfNodes = 0;
         for (int i = 0; i <= maxDegree; i++) {
             if (count[i] > 0) {
                 sumOfEdges += i * count[i];
                 sumOfNodes += count[i];
-                degreeDist.put(i, sumOfNodes);
+                degreeDist.put(i, count[i]);
+                degreeCumulativeDist.put(i, sumOfNodes);
             }
         }
 
+        String degreeImageFile;
+        String cumulativeDegreeImageFile;
         String report = "";
-        //Distribution series
-        XYSeries dSeries = ChartUtils.createXYSeries(degreeDist, "Degree Distribution");
+        {
+            //Distribution series
+            XYSeries dSeries = ChartUtils.createXYSeries(degreeDist, "Degree Distribution");
 
-        XYSeriesCollection dataset1 = new XYSeriesCollection();
-        dataset1.addSeries(dSeries);
+            XYSeriesCollection dataset1 = new XYSeriesCollection();
+            dataset1.addSeries(dSeries);
 
-        JFreeChart chart1 = ChartFactory.createXYLineChart(
-                "Degree Distribution",
-                "Degree less or equal then",
-                "Count",
-                dataset1,
-                PlotOrientation.VERTICAL,
-                true,
-                true,
-                true);
-        ChartUtils.decorateChart(chart1);
-        ChartUtils.scaleChart(chart1, dSeries, false);
-        String degreeImageFile = ChartUtils.renderChart(chart1, "w-degree-distribution.png");
+            JFreeChart chart1 = ChartFactory.createXYLineChart(
+                    "Degree Distribution",
+                    "Degree",
+                    "Count",
+                    dataset1,
+                    PlotOrientation.VERTICAL,
+                    true,
+                    true,
+                    true);
+            ChartUtils.decorateChart(chart1);
+            ChartUtils.scaleChart(chart1, dSeries, false);
+            degreeImageFile = ChartUtils.renderChart(chart1, "w-degree-distribution.png");
+        }
 
-        report = "<HTML> <BODY> Example of report "
+        {
+            //Distribution series
+            XYSeries dSeries = ChartUtils.createXYSeries(degreeCumulativeDist, "Degree Distribution");
+
+            XYSeriesCollection dataset1 = new XYSeriesCollection();
+            dataset1.addSeries(dSeries);
+
+            JFreeChart chart1 = ChartFactory.createXYLineChart(
+                    "Degree Distribution",
+                    "Degree less or equal then",
+                    "Count",
+                    dataset1,
+                    PlotOrientation.VERTICAL,
+                    true,
+                    true,
+                    true);
+            ChartUtils.decorateChart(chart1);
+            ChartUtils.scaleChart(chart1, dSeries, false);
+            cumulativeDegreeImageFile = ChartUtils.renderChart(chart1, "w-degree-distribution-cumulative.png");
+        }
+        degreeBothReport = "<HTML> <BODY> Example of report "
+                + "<hr>"
+                + "<br> Average degree: " + (((double) sumOfEdges) / n) + ""
+                + "<br> Undirected edges: " + sumOfEdges / 2 + ""
+                + "<br /><br />" + cumulativeDegreeImageFile
+                + "<br /><br />" + degreeImageFile
+                + "</BODY></HTML>";
+
+        degreeReport = "<HTML> <BODY> Example of report "
                 + "<hr>"
                 + "<br> Average degree: " + (((double) sumOfEdges) / n) + ""
                 + "<br> Undirected edges: " + sumOfEdges / 2 + ""
                 + "<br /><br />" + degreeImageFile
                 + "</BODY></HTML>";
-        return report;
+
+        cumulativeDegreeReport = "<HTML> <BODY> Example of report "
+                + "<hr>"
+                + "<br> Average degree: " + (((double) sumOfEdges) / n) + ""
+                + "<br> Undirected edges: " + sumOfEdges / 2 + ""
+                + "<br /><br />" + cumulativeDegreeImageFile
+                + "</BODY></HTML>";
     }
 
     /**
@@ -134,6 +214,7 @@ public class LargeSimpleGraphPanel extends javax.swing.JPanel implements Validat
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        showButtonGroup = new javax.swing.ButtonGroup();
         nodesTextField = new javax.swing.JTextField();
         minDegreeTextField = new javax.swing.JTextField();
         maxDegreeTextField = new javax.swing.JTextField();
@@ -145,6 +226,11 @@ public class LargeSimpleGraphPanel extends javax.swing.JPanel implements Validat
         exampleButton = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
         jEditorPane1 = new javax.swing.JEditorPane();
+        showDensityRadioButton = new javax.swing.JRadioButton();
+        showCumulativeDensityRadioButton = new javax.swing.JRadioButton();
+        showBothRadioButton = new javax.swing.JRadioButton();
+        shuffleLabel = new javax.swing.JLabel();
+        shuffleTextField = new javax.swing.JTextField();
 
         nodesLabel.setText(org.openide.util.NbBundle.getMessage(LargeSimpleGraphPanel.class, "nodeLabel.text")); // NOI18N
 
@@ -163,6 +249,32 @@ public class LargeSimpleGraphPanel extends javax.swing.JPanel implements Validat
 
         jScrollPane1.setViewportView(jEditorPane1);
 
+        showDensityRadioButton.setText("Show degree report");
+        showDensityRadioButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                showDensityRadioButtonActionPerformed(evt);
+            }
+        });
+
+        showCumulativeDensityRadioButton.setText("Show cumulative degree report");
+        showCumulativeDensityRadioButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                showCumulativeDensityRadioButtonActionPerformed(evt);
+            }
+        });
+
+        showBothRadioButton.setText("Show both");
+        showBothRadioButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                showBothRadioButtonActionPerformed(evt);
+            }
+        });
+
+        shuffleLabel.setText("Shuffle ratio");
+        shuffleLabel.setToolTipText("Number of shuffles/number of edges. Recommended ratio is 1. Decrease to get less random graph faster. Values higher than 1 doesn't improve result.");
+
+        shuffleTextField.setToolTipText("Number of shuffles/number of edges. Decrease to get less random graph faster.  Setting higher than 1 doesn't improve results.");
+
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -170,42 +282,65 @@ public class LargeSimpleGraphPanel extends javax.swing.JPanel implements Validat
             .add(layout.createSequentialGroup()
                 .addContainerGap()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(exampleButton)
-                    .add(layout.createSequentialGroup()
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
+                        .add(exampleButton)
+                        .add(showDensityRadioButton)
+                        .add(layout.createSequentialGroup()
                             .add(nodesLabel)
-                            .add(minDegreeLabel)
+                            .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .add(nodesTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 73, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                        .add(showBothRadioButton)
+                        .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
                             .add(maxDegreeLabel)
-                            .add(exponentLabel))
-                        .add(43, 43, 43)
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
-                            .add(nodesTextField)
-                            .add(exponentTextField)
-                            .add(maxDegreeTextField)
-                            .add(minDegreeTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 73, Short.MAX_VALUE))))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
+                            .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .add(maxDegreeTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 73, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                        .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+                            .add(exponentLabel)
+                            .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .add(exponentTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 73, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                        .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+                            .add(shuffleLabel)
+                            .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .add(shuffleTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 73, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                        .add(layout.createSequentialGroup()
+                            .add(minDegreeLabel)
+                            .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .add(minDegreeTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 73, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
+                    .add(showCumulativeDensityRadioButton))
+                .add(27, 27, 27)
                 .add(jScrollPane1))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
                 .addContainerGap()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(nodesLabel)
-                    .add(nodesTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .add(18, 18, 18)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(minDegreeLabel)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                    .add(layout.createSequentialGroup()
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                            .add(nodesLabel)
+                            .add(nodesTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                        .add(23, 23, 23)
+                        .add(minDegreeLabel))
                     .add(minDegreeTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .add(18, 18, 18)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                .add(28, 28, 28)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(maxDegreeLabel)
                     .add(maxDegreeTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .add(18, 18, 18)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(exponentLabel)
-                    .add(exponentTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 280, Short.MAX_VALUE)
+                    .add(exponentTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(exponentLabel))
+                .add(18, 18, 18)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(shuffleTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(shuffleLabel))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 53, Short.MAX_VALUE)
+                .add(showDensityRadioButton)
+                .add(18, 18, 18)
+                .add(showCumulativeDensityRadioButton)
+                .add(18, 18, 18)
+                .add(showBothRadioButton)
+                .add(74, 74, 74)
                 .add(exampleButton)
                 .addContainerGap())
             .add(jScrollPane1)
@@ -213,9 +348,21 @@ public class LargeSimpleGraphPanel extends javax.swing.JPanel implements Validat
     }// </editor-fold>//GEN-END:initComponents
 
 private void exampleButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exampleButtonActionPerformed
-    updateExample();
+    updateExample(true);
     //htmlReport = new SimpleHTMLReport(WindowManager.getDefault().getMainWindow(), generateReport());
 }//GEN-LAST:event_exampleButtonActionPerformed
+
+    private void showDensityRadioButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_showDensityRadioButtonActionPerformed
+        updateExample(false);
+    }//GEN-LAST:event_showDensityRadioButtonActionPerformed
+
+    private void showCumulativeDensityRadioButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_showCumulativeDensityRadioButtonActionPerformed
+        updateExample(false);
+    }//GEN-LAST:event_showCumulativeDensityRadioButtonActionPerformed
+
+    private void showBothRadioButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_showBothRadioButtonActionPerformed
+        updateExample(false);
+    }//GEN-LAST:event_showBothRadioButtonActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton exampleButton;
     private javax.swing.JLabel exponentLabel;
@@ -228,6 +375,12 @@ private void exampleButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN
     private javax.swing.JTextField minDegreeTextField;
     private javax.swing.JLabel nodesLabel;
     private javax.swing.JTextField nodesTextField;
+    private javax.swing.JRadioButton showBothRadioButton;
+    private javax.swing.ButtonGroup showButtonGroup;
+    private javax.swing.JRadioButton showCumulativeDensityRadioButton;
+    private javax.swing.JRadioButton showDensityRadioButton;
+    private javax.swing.JLabel shuffleLabel;
+    private javax.swing.JTextField shuffleTextField;
     // End of variables declaration//GEN-END:variables
 
     public static ValidationPanel createValidationPanel(LargeSimpleGraphPanel innerPanel) {
@@ -247,4 +400,9 @@ private void exampleButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN
         group.add(exponentTextField, Validators.REQUIRE_NON_EMPTY_STRING, Validators.REQUIRE_VALID_NUMBER);
         group.add(nodesTextField, Validators.REQUIRE_NON_EMPTY_STRING, Validators.REQUIRE_VALID_INTEGER, Validators.numberRange(1, Integer.MAX_VALUE));
     }
+}
+
+enum previewType {
+
+    DEGREE_REPORT, CUMULATIVE_DEGREE_REPORT, BOTH_REPORT
 }

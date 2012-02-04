@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+OpenIDE-Module: gov.lbl.acs.colt
+OpenIDE-Module-Localizing-Bundle: gov/lbl/acs/colt/Bundle.properties
+OpenIDE-Module-Specification-Version: 1.0
+

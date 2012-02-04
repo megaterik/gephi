@@ -20,30 +20,30 @@
  */
 package org.gephi.lsg_generator;
 
+import cern.jet.random.engine.MersenneTwister;
+import java.awt.RadialGradientPaint;
 import java.security.SecureRandom;
 
-public class DistributionGenerator extends java.util.Random {
+public class DistributionGenerator{
+
+    MersenneTwister randomFromColt;
+    SecureRandom random;
 
     public DistributionGenerator() {
-        super();
+        randomFromColt = new MersenneTwister(new java.util.Date());
+        random = new SecureRandom();
     }
 
     int nextPowerLaw(int min, int max, double power) {
-        //x = [(x1^(n+1) - x0^(n+1))*y + x0^(n+1)]^(1/(n+1))
-        //where y is a uniform variate, n is the distribution power, 
-        //    x0 and x1 define the range of the distribution, and x is your power-law distributed variate.
-        //
-        double rand = nextDouble();
-        int res = (int) Math.round(Math.pow((Math.pow(max, power + 1) - Math.pow(min, power + 1)) * rand + Math.pow(min, power + 1), 1.0 / (power + 1)));
-        res = (max - res) + min;
-        if (res > max || res < min) //in case of overflow
-        {
-            if (power > 0) {
-                res = min;
-            } else {
-                res = max;
-            }
-        }
+        int res;
+        do {
+            res = (int) ((max - cern.jet.random.Distributions.nextPowLaw(power, max, randomFromColt)) + min);
+        } while (res > max);
         return res;
+    }
+    
+    int nextInt(int max)
+    {
+        return random.nextInt(max);
     }
 }

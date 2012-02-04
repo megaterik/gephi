@@ -35,16 +35,19 @@ import org.openide.util.lookup.ServiceProvider;
 @ServiceProvider(service = Generator.class)
 public class LargeSimpleGraph implements Generator {
 
-    //defaul values
+    //default values
     private double exponent = 2.5;
     private int nodes = 500;
     private int minDegree = 1;
     private int maxDegree = 50;
+    private double shuffleRate = 1;
     private DistributionGenerator random;
     private HashMapForEdges hashtable;
     private Node[] node;
     private ProgressTicket progressTicket;
     private boolean cancel = false;
+    //values for ui preview
+    private previewType typeOfReport = previewType.CUMULATIVE_DEGREE_REPORT;
 
     public double getExponent() {
         return exponent;
@@ -92,7 +95,9 @@ public class LargeSimpleGraph implements Generator {
         do {
             failure++;
             if (failure > 10) {
-                throw new IllegalArgumentException("Impossible to make graph with such parameters connected and simple.");
+                throw new IllegalArgumentException(
+                        "generation of graph has been failed " + failure
+                        + " times, perhaps it is impossible to make it connect with such settings");
             }
             generateDegree();
         } while (!attemptToMakeSimpleGraph());
@@ -100,6 +105,7 @@ public class LargeSimpleGraph implements Generator {
         makeGraphConnected();
         shuffleGraph();
         appendResult(container);
+
         progressTicket.finish();
     }
 
@@ -153,8 +159,9 @@ public class LargeSimpleGraph implements Generator {
 
         //init adjastment lists
         for (int i = 0; i < nodes; i++) {
-            if (cancel)
+            if (cancel) {
                 return;
+            }
             node[i].edge = new Node[node[i].edges];
         }
     }
@@ -227,9 +234,15 @@ public class LargeSimpleGraph implements Generator {
             nontreeEdge.add(new Pair(mainEdge.first, mainEdge.second));
         }
 
+        if (treeEdge.size() == 1 && nontreeEdge.size() == 0)//just one tree
+        {
+            return;
+        }
+
         while (treeEdge.size() > 0) { //connect tree to main component
-            if (cancel)
+            if (cancel) {
                 return;
+            }
             hashtable.swapEdge(node[treeEdge.peek().first], node[treeEdge.peek().second], node[nontreeEdge.peek().first], node[nontreeEdge.peek().second]);
             treeEdge.poll();
             nontreeEdge.poll();
@@ -260,8 +273,9 @@ public class LargeSimpleGraph implements Generator {
             k.add(new LinkedList<Integer>());
         }
         for (int i = 0; i < nodes; i++) {
-            if (cancel)
+            if (cancel) {
                 return false;
+            }
             k.get(node[i].edges).add(new Integer(i));
         }
 
@@ -286,8 +300,9 @@ public class LargeSimpleGraph implements Generator {
                 }
 
                 while (first.edges > 0 && k.get(degree).size() > thisLeveLUsed) {
-                    if (cancel)
+                    if (cancel) {
                         return false;
+                    }
                     Node second = node[k.get(degree).poll()];
                     first.edge[first.edges - 1] = second;
                     second.edge[second.edges - 1] = first;
@@ -322,10 +337,10 @@ public class LargeSimpleGraph implements Generator {
         }
         edges /= 2;
 
-        double numberOfSteps = 1;//only one iteration before bfs
+        double numberOfSteps = 1;//number of iterations before connectivity check, increases\decreases with time
 
         ArrayList<EdgeSwapStorage> operations = new ArrayList<EdgeSwapStorage>();
-        for (int successes = 0; successes < edges;) {
+        for (int successes = 0; successes < edges * shuffleRate;) {
             if (cancel) {
                 return;
             }
@@ -430,6 +445,74 @@ public class LargeSimpleGraph implements Generator {
     @Override
     public void setProgressTicket(ProgressTicket progressTicket) {
         this.progressTicket = progressTicket;
+    }
+
+    public previewType getTypeOfReport() {
+        return typeOfReport;
+    }
+
+    public void setTypeOfReport(previewType typeOfReport) {
+        this.typeOfReport = typeOfReport;
+    }
+
+    /* void testGenerator(int nodes, int minDegree, int maxDegree, double exponent) {
+        this.nodes = nodes;
+        this.minDegree = minDegree;
+        this.maxDegree = maxDegree;
+        this.exponent = exponent;
+        System.err.println("testing " + nodes + " " + minDegree + " " + maxDegree + " " + exponent);
+        init();
+        int failure = 0;
+        do {
+            failure++;
+            if (failure > 10) {
+                throw new IllegalArgumentException("generation of graph has been failed " + failure + " times, perhaps it is impossible");
+            }
+            generateDegree();
+            System.err.println("fail");
+        } while (!attemptToMakeSimpleGraph());
+        addEdgesToHashTable();
+
+        System.err.println(node.length + " length");
+        for (int i = 0; i < nodes; i++) {
+            System.err.print(node[i].id + ":");
+            for (int j = 0; j < node[i].edges; j++) {
+                System.err.print(node[i].edge[j].id + " ");
+            }
+            System.err.println();
+        }
+        System.err.println("-----connecting-----");
+        makeGraphConnected();
+
+        for (int i = 0; i < nodes; i++) {
+            System.err.print(node[i].id + ":");
+            for (int j = 0; j < node[i].edges; j++) {
+                System.err.print(node[i].edge[j].id + " ");
+            }
+            System.err.println();
+        }
+        System.err.println("-----shuffle-----");
+
+        shuffleGraph();
+
+        for (int i = 0; i < nodes; i++) {
+            System.err.print(node[i].id + ":");
+            for (int j = 0; j < node[i].edges; j++) {
+                System.err.print(node[i].edge[j].id + " ");
+            }
+            System.err.println();
+        }
+        System.err.println("-----end-----");
+        System.err.println("-----end-----");
+        System.err.println("-----end-----");
+    } */
+
+    public double getShuffleRate() {
+        return shuffleRate;
+    }
+
+    public void setShuffleRate(double shuffleRate) {
+        this.shuffleRate = shuffleRate;
     }
 }
 

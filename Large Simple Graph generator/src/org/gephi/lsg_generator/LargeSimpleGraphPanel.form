@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 
 <Form version="1.2" maxVersion="1.2" type="org.netbeans.modules.form.forminfo.JPanelFormInfo">
+  <NonVisualComponents>
+    <Component class="javax.swing.ButtonGroup" name="showButtonGroup">
+    </Component>
+  </NonVisualComponents>
   <AuxValues>
     <AuxValue name="FormSettings_autoResourcing" type="java.lang.Integer" value="0"/>
     <AuxValue name="FormSettings_autoSetComponentName" type="java.lang.Boolean" value="false"/>
@@ -17,26 +21,41 @@
     <DimensionLayout dim="0">
       <Group type="103" groupAlignment="0" attributes="0">
           <Group type="102" attributes="0">
-              <EmptySpace min="-2" max="-2" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="exampleButton" alignment="0" min="-2" max="-2" attributes="0"/>
-                  <Group type="102" alignment="0" attributes="0">
-                      <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="nodesLabel" alignment="0" min="-2" max="-2" attributes="0"/>
-                          <Component id="minDegreeLabel" alignment="0" min="-2" max="-2" attributes="0"/>
-                          <Component id="maxDegreeLabel" alignment="0" min="-2" max="-2" attributes="0"/>
-                          <Component id="exponentLabel" alignment="0" min="-2" max="-2" attributes="0"/>
+                  <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                      <Component id="exampleButton" alignment="0" min="-2" max="-2" attributes="0"/>
+                      <Component id="showDensityRadioButton" alignment="0" min="-2" max="-2" attributes="0"/>
+                      <Group type="102" alignment="0" attributes="0">
+                          <Component id="nodesLabel" min="-2" max="-2" attributes="0"/>
+                          <EmptySpace max="32767" attributes="0"/>
+                          <Component id="nodesTextField" min="-2" pref="73" max="-2" attributes="1"/>
                       </Group>
-                      <EmptySpace min="-2" pref="43" max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                          <Component id="nodesTextField" max="32767" attributes="1"/>
-                          <Component id="exponentTextField" alignment="0" max="32767" attributes="1"/>
-                          <Component id="maxDegreeTextField" alignment="0" max="32767" attributes="1"/>
-                          <Component id="minDegreeTextField" alignment="0" pref="73" max="32767" attributes="1"/>
+                      <Component id="showBothRadioButton" alignment="0" min="-2" max="-2" attributes="0"/>
+                      <Group type="102" alignment="1" attributes="0">
+                          <Component id="maxDegreeLabel" min="-2" max="-2" attributes="0"/>
+                          <EmptySpace max="32767" attributes="0"/>
+                          <Component id="maxDegreeTextField" min="-2" pref="73" max="-2" attributes="1"/>
+                      </Group>
+                      <Group type="102" alignment="1" attributes="0">
+                          <Component id="exponentLabel" min="-2" max="-2" attributes="0"/>
+                          <EmptySpace max="32767" attributes="0"/>
+                          <Component id="exponentTextField" min="-2" pref="73" max="-2" attributes="1"/>
+                      </Group>
+                      <Group type="102" alignment="1" attributes="0">
+                          <Component id="shuffleLabel" min="-2" max="-2" attributes="0"/>
+                          <EmptySpace max="32767" attributes="0"/>
+                          <Component id="shuffleTextField" min="-2" pref="73" max="-2" attributes="0"/>
+                      </Group>
+                      <Group type="102" attributes="0">
+                          <Component id="minDegreeLabel" min="-2" max="-2" attributes="0"/>
+                          <EmptySpace max="32767" attributes="0"/>
+                          <Component id="minDegreeTextField" min="-2" pref="73" max="-2" attributes="1"/>
                       </Group>
                   </Group>
+                  <Component id="showCumulativeDensityRadioButton" alignment="0" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace type="unrelated" max="-2" attributes="0"/>
+              <EmptySpace min="-2" pref="27" max="-2" attributes="0"/>
               <Component id="jScrollPane1" max="32767" attributes="0"/>
           </Group>
       </Group>
@@ -45,26 +64,39 @@
       <Group type="103" groupAlignment="0" attributes="0">
           <Group type="102" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="1" attributes="0">
+                  <Group type="102" attributes="0">
+                      <Group type="103" groupAlignment="3" attributes="0">
+                          <Component id="nodesLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="nodesTextField" alignment="3" min="-2" max="-2" attributes="0"/>
+                      </Group>
+                      <EmptySpace min="-2" pref="23" max="-2" attributes="0"/>
+                      <Component id="minDegreeLabel" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                  <Component id="minDegreeTextField" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace min="-2" pref="28" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="nodesLabel" min="-2" max="-2" attributes="0"/>
-                  <Component id="nodesTextField" min="-2" max="-2" attributes="0"/>
+                  <Component id="maxDegreeLabel" min="-2" max="-2" attributes="0"/>
+                  <Component id="maxDegreeTextField" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace type="separate" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="minDegreeLabel" min="-2" max="-2" attributes="0"/>
-                  <Component id="minDegreeTextField" min="-2" max="-2" attributes="0"/>
+                  <Component id="exponentTextField" min="-2" max="-2" attributes="0"/>
+                  <Component id="exponentLabel" alignment="0" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace type="separate" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="maxDegreeLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="maxDegreeTextField" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="shuffleTextField" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="shuffleLabel" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
+              <EmptySpace pref="53" max="32767" attributes="0"/>
+              <Component id="showDensityRadioButton" min="-2" max="-2" attributes="0"/>
               <EmptySpace type="separate" max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="exponentLabel" min="-2" max="-2" attributes="0"/>
-                  <Component id="exponentTextField" min="-2" max="-2" attributes="0"/>
-              </Group>
-              <EmptySpace pref="280" max="32767" attributes="0"/>
+              <Component id="showCumulativeDensityRadioButton" min="-2" max="-2" attributes="0"/>
+              <EmptySpace type="separate" max="-2" attributes="0"/>
+              <Component id="showBothRadioButton" min="-2" max="-2" attributes="0"/>
+              <EmptySpace min="-2" pref="74" max="-2" attributes="0"/>
               <Component id="exampleButton" min="-2" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
@@ -130,5 +162,40 @@
         </Component>
       </SubComponents>
     </Container>
+    <Component class="javax.swing.JRadioButton" name="showDensityRadioButton">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Show degree report"/>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="showDensityRadioButtonActionPerformed"/>
+      </Events>
+    </Component>
+    <Component class="javax.swing.JRadioButton" name="showCumulativeDensityRadioButton">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Show cumulative degree report"/>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="showCumulativeDensityRadioButtonActionPerformed"/>
+      </Events>
+    </Component>
+    <Component class="javax.swing.JRadioButton" name="showBothRadioButton">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Show both"/>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="showBothRadioButtonActionPerformed"/>
+      </Events>
+    </Component>
+    <Component class="javax.swing.JLabel" name="shuffleLabel">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Shuffle ratio"/>
+        <Property name="toolTipText" type="java.lang.String" value="Number of shuffles/number of edges. Recommended ratio is 1. Decrease to get less random graph faster. Values higher than 1 doesn&apos;t improve result."/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JTextField" name="shuffleTextField">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="Number of shuffles/number of edges. Decrease to get less random graph faster.  Setting higher than 1 doesn&apos;t improve results."/>
+      </Properties>
+    </Component>
   </SubComponents>
 </Form>
