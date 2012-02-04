@@ -64,18 +64,16 @@
       <Group type="103" groupAlignment="0" attributes="0">
           <Group type="102" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="1" attributes="0">
-                  <Group type="102" attributes="0">
-                      <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="nodesLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="nodesTextField" alignment="3" min="-2" max="-2" attributes="0"/>
-                      </Group>
-                      <EmptySpace min="-2" pref="23" max="-2" attributes="0"/>
-                      <Component id="minDegreeLabel" min="-2" max="-2" attributes="0"/>
-                  </Group>
-                  <Component id="minDegreeTextField" min="-2" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="nodesLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="nodesTextField" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace min="-2" pref="28" max="-2" attributes="0"/>
+              <EmptySpace min="-2" pref="18" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="minDegreeLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="minDegreeTextField" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace min="-2" pref="23" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
                   <Component id="maxDegreeLabel" min="-2" max="-2" attributes="0"/>
                   <Component id="maxDegreeTextField" min="-2" max="-2" attributes="0"/>
