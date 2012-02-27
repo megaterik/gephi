@@ -12,6 +12,7 @@ import org.gephi.data.attributes.api.AttributeTable;
 import org.gephi.datalab.api.AttributeColumnsController;
 import org.gephi.datalab.spi.ManipulatorUI;
 import org.gephi.datalab.spi.general.GeneralActionsManipulator;
+import org.gephi.datalab.spi.general.PluginGeneralActionsManipulator;
 import org.openide.util.Lookup;
 import org.openide.util.lookup.ServiceProvider;
 
@@ -19,8 +20,8 @@ import org.openide.util.lookup.ServiceProvider;
  *
  * @author megaterik
  */
-@ServiceProvider(service = GeneralActionsManipulator.class)
-public class RecastManipulator implements GeneralActionsManipulator{
+@ServiceProvider(service = PluginGeneralActionsManipulator.class)
+public class RecastManipulator implements PluginGeneralActionsManipulator{
 
     @Override
     public void execute() {
@@ -49,7 +50,7 @@ public class RecastManipulator implements GeneralActionsManipulator{
 
     @Override
     public int getType() {
-        return 300;
+        return 100;
     }
 
     @Override

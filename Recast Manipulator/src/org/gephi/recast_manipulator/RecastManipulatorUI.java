@@ -6,8 +6,6 @@ package org.gephi.recast_manipulator;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import javax.smartcardio.ATR;
-import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JPanel;
 import org.gephi.data.attributes.api.AttributeColumn;
@@ -18,8 +16,6 @@ import org.gephi.datalab.api.AttributeColumnsController;
 import org.gephi.datalab.spi.DialogControls;
 import org.gephi.datalab.spi.Manipulator;
 import org.gephi.datalab.spi.ManipulatorUI;
-import org.gephi.datalab.spi.columns.AttributeColumnsManipulator;
-import org.gephi.datalab.spi.columns.AttributeColumnsManipulatorUI;
 import org.openide.util.Lookup;
 
 /**
@@ -40,6 +36,10 @@ public class RecastManipulatorUI extends javax.swing.JPanel implements Manipulat
     private String lastColumnBeingDuplicated;
     private String lastColumnThatDuplicate;
     private String lastColumnLabel;
+    private boolean lastOperationWasAutoRecast = false;
+    private ArrayList<String> removedDuringAutoColumns = new ArrayList<String>();
+    private ArrayList<String> addedDuringAutoColumns = new ArrayList<String>();
+    private ArrayList<String> labelDuringAutoColumns = new ArrayList<String>();
 
     private void initComboBox() {
         convertToOption = new ArrayList<ConvertToComboBoxType>();
@@ -49,7 +49,7 @@ public class RecastManipulatorUI extends javax.swing.JPanel implements Manipulat
                     AttributeType.LONG, AttributeType.BIGINTEGER, AttributeType.BOOLEAN, AttributeType.DOUBLE}));
 
         suitableClass = new AttributeType[]{AttributeType.INT,
-            AttributeType.LONG, AttributeType.BIGINTEGER,AttributeType.BOOLEAN, AttributeType.DOUBLE};
+            AttributeType.LONG, AttributeType.BIGINTEGER, AttributeType.BOOLEAN, AttributeType.DOUBLE};
         convertToOption.add(new ConvertToComboBoxType("Suitable integer class",
                 new AttributeType[]{AttributeType.INT, AttributeType.LONG, AttributeType.BIGINTEGER}));
 
@@ -99,7 +99,14 @@ public class RecastManipulatorUI extends javax.swing.JPanel implements Manipulat
         for (AttributeColumn column : ac.getModel().getEdgeTable().getColumns()) {
             columnTitle.add(column.getTitle() + EDGE_TABLE);
         }
+        String previousTitle = columnComboBox.getSelectedItem().toString();
         columnComboBox.setModel(new DefaultComboBoxModel((columnTitle.toArray())));
+        for (int i = 0; i < columnComboBox.getItemCount(); i++) {
+            if (previousTitle.equals(columnComboBox.getItemAt(i).toString())) {
+                columnComboBox.setSelectedIndex(i);
+                break;
+            }
+        }
         AttributeColumn column = getColumnByCheckBoxName(columnComboBox.getSelectedItem().toString());
         currentTypeShowLabel.setText(column.getType().toString());
     }
@@ -156,6 +163,7 @@ public class RecastManipulatorUI extends javax.swing.JPanel implements Manipulat
         });
 
         forceRecastCheckBox.setText(org.openide.util.NbBundle.getMessage(RecastManipulatorUI.class, "RecastManipulatorUI.forceRecastCheckBox.text")); // NOI18N
+        forceRecastCheckBox.setToolTipText(org.openide.util.NbBundle.getMessage(RecastManipulatorUI.class, "RecastManipulatorUI.forceRecastCheckBox.toolTipText")); // NOI18N
 
         replaceOriginalButton.setText(org.openide.util.NbBundle.getMessage(RecastManipulatorUI.class, "RecastManipulatorUI.replaceOriginalButton.text")); // NOI18N
         replaceOriginalButton.setEnabled(false);
@@ -170,29 +178,28 @@ public class RecastManipulatorUI extends javax.swing.JPanel implements Manipulat
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(25, 25, 25)
+                .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(autoButton)
+                            .addComponent(replaceOriginalButton)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(recastButton)
+                                .addGap(18, 18, 18)
+                                .addComponent(forceRecastCheckBox)))
+                        .addGap(0, 16, Short.MAX_VALUE))
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(convertToLabel)
                             .addComponent(currentTypeLabel)
-                            .addComponent(columnLabel)
-                            .addComponent(forceRecastCheckBox))
-                        .addGap(46, 46, 46)
+                            .addComponent(columnLabel))
+                        .addGap(65, 65, 65)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(columnComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addContainerGap())
-                            .addGroup(layout.createSequentialGroup()
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(currentTypeShowLabel)
-                                    .addComponent(convertToComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addGap(0, 0, Short.MAX_VALUE))))
-                    .addComponent(autoButton)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(recastButton)
-                        .addGap(18, 18, 18)
-                        .addComponent(replaceOriginalButton))))
+                            .addComponent(columnComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(currentTypeShowLabel)
+                            .addComponent(convertToComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addContainerGap())))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -210,16 +217,31 @@ public class RecastManipulatorUI extends javax.swing.JPanel implements Manipulat
                     .addComponent(convertToLabel)
                     .addComponent(convertToComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(forceRecastCheckBox)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(recastButton)
-                    .addComponent(replaceOriginalButton))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 16, Short.MAX_VALUE)
+                    .addComponent(forceRecastCheckBox)
+                    .addComponent(recastButton))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 8, Short.MAX_VALUE)
+                .addComponent(replaceOriginalButton)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(autoButton))
         );
     }// </editor-fold>//GEN-END:initComponents
 
+    private void columnDublicatedEvent(String titleOld, String titleNew, String titleLabel) {
+        //called only when single column was dublicated, so we should delete auto-recasting history
+        if (lastOperationWasAutoRecast) {
+            lastOperationWasAutoRecast = false;
+            removedDuringAutoColumns.clear();
+            addedDuringAutoColumns.clear();
+            labelDuringAutoColumns.clear();
+        }
+        lastColumnBeingDuplicated = titleOld;
+        lastColumnThatDuplicate = titleNew;
+        lastColumnLabel = titleLabel;
+        replaceOriginalButton.setEnabled(
+                Lookup.getDefault().lookup(AttributeColumnsController.class).canDeleteColumn(getColumnByCheckBoxName(titleLabel)));
+        replaceOriginalButton.setText("Replace " + lastColumnBeingDuplicated + " with " + lastColumnThatDuplicate);
+    }
     private void recastButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_recastButtonActionPerformed
         String title = columnComboBox.getSelectedItem().toString();
         boolean duplicated = false;
@@ -228,12 +250,8 @@ public class RecastManipulatorUI extends javax.swing.JPanel implements Manipulat
                     getColumnByCheckBoxName(title), type)) {
                 if (RecastImplementation.recast(getTableByCheckBoxName(title),
                         getColumnByCheckBoxName(title), type, getColumnByCheckBoxName(title).getTitle() + type.toString())) {
-                    lastColumnBeingDuplicated = getColumnByCheckBoxName(title).getTitle();
-                    lastColumnThatDuplicate = getColumnByCheckBoxName(title).getTitle() + type.toString();
-                    lastColumnLabel = title;
-                    replaceOriginalButton.setEnabled(
-                            Lookup.getDefault().lookup(AttributeColumnsController.class).canDeleteColumn(getColumnByCheckBoxName(title)));
-                    replaceOriginalButton.setText("Replace " + lastColumnBeingDuplicated + " with " + lastColumnThatDuplicate);
+                    columnDublicatedEvent(getColumnByCheckBoxName(title).getTitle(),
+                            getColumnByCheckBoxName(title).getTitle() + type.toString(), title);
                     duplicated = true;
                     break;
                 }
@@ -245,12 +263,8 @@ public class RecastManipulatorUI extends javax.swing.JPanel implements Manipulat
                 //no possibleToConvert check, because of forceRecastCheckBox, use more euristic AttributeType.parse()
                 if (RecastImplementation.recast(getTableByCheckBoxName(title),
                         getColumnByCheckBoxName(title), type, getColumnByCheckBoxName(title).getTitle() + type.toString())) {
-                    lastColumnBeingDuplicated = getColumnByCheckBoxName(title).getTitle();
-                    lastColumnThatDuplicate = getColumnByCheckBoxName(title).getTitle() + type.toString();
-                    lastColumnLabel = title;
-                    replaceOriginalButton.setEnabled(
-                            Lookup.getDefault().lookup(AttributeColumnsController.class).canDeleteColumn(getColumnByCheckBoxName(title)));
-                    replaceOriginalButton.setText("Replace " + lastColumnBeingDuplicated + " with " + lastColumnThatDuplicate);
+                    columnDublicatedEvent(getColumnByCheckBoxName(title).getTitle(),
+                            getColumnByCheckBoxName(title).getTitle() + type.toString(), title);
                     duplicated = true;
                     break;
                 }
@@ -269,18 +283,18 @@ public class RecastManipulatorUI extends javax.swing.JPanel implements Manipulat
                             getColumnByCheckBoxName(title), type)) {
                         if (RecastImplementation.recast(getTableByCheckBoxName(title),
                                 getColumnByCheckBoxName(title), type, getColumnByCheckBoxName(title).getTitle() + type.toString())) {
-                            lastColumnBeingDuplicated = getColumnByCheckBoxName(title).getTitle();
-                            lastColumnThatDuplicate = getColumnByCheckBoxName(title).getTitle() + type.toString();
-                            lastColumnLabel = title;
-                            replaceOriginalButton.setEnabled(
-                                    Lookup.getDefault().lookup(AttributeColumnsController.class).canDeleteColumn(getColumnByCheckBoxName(title)));
-                            replaceOriginalButton.setText("Replace " + lastColumnBeingDuplicated + " with " + lastColumnThatDuplicate);
+                            removedDuringAutoColumns.add(getColumnByCheckBoxName(title).getTitle());
+                            addedDuringAutoColumns.add(getColumnByCheckBoxName(title).getTitle() + type.toString());
+                            labelDuringAutoColumns.add(title);
                             break;
                         }
                     }
                 }
             }
         }
+        lastOperationWasAutoRecast = true;
+        replaceOriginalButton.setText("Replace all automatically recasted columns");
+        replaceOriginalButton.setEnabled(true);//could be set to false during last single-column recasting
         initColumnComboBox();
     }//GEN-LAST:event_autoButtonActionPerformed
 
@@ -308,7 +322,15 @@ public class RecastManipulatorUI extends javax.swing.JPanel implements Manipulat
     }//GEN-LAST:event_columnComboBoxActionPerformed
 
     private void replaceOriginalButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_replaceOriginalButtonActionPerformed
-        RecastImplementation.move(getTableByCheckBoxName(lastColumnLabel), lastColumnBeingDuplicated, lastColumnThatDuplicate);
+        if (!lastOperationWasAutoRecast) //just one column
+        {
+            RecastImplementation.move(getTableByCheckBoxName(lastColumnLabel), lastColumnBeingDuplicated, lastColumnThatDuplicate);
+        } else { 
+            for (int i = 0; i < removedDuringAutoColumns.size(); i++) {
+                RecastImplementation.move(getTableByCheckBoxName(labelDuringAutoColumns.get(i)),
+                        removedDuringAutoColumns.get(i), addedDuringAutoColumns.get(i));
+            }
+        }
         initColumnComboBox();
     }//GEN-LAST:event_replaceOriginalButtonActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
