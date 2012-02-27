@@ -1,48 +1,52 @@
 /*
-Copyright 2008-2012 Gephi
-Authors : Taras Klaskovsky <megaterik@gmail.com>
-Website : http://www.gephi.org
+ Copyright 2008-2012 Gephi
+ Authors : Taras Klaskovsky <megaterik@gmail.com>
+ Website : http://www.gephi.org
 
-This file is part of Gephi.
+ This file is part of Gephi.
 
-DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+ DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
 
-Copyright 2011 Gephi Consortium. All rights reserved.
+ Copyright 2011 Gephi Consortium. All rights reserved.
 
-The contents of this file are subject to the terms of either the GNU
-General Public License Version 3 only ("GPL") or the Common
-Development and Distribution License("CDDL") (collectively, the
-"License"). You may not use this file except in compliance with the
-License. You can obtain a copy of the License at
-http://gephi.org/about/legal/license-notice/
-or /cddl-1.0.txt and /gpl-3.0.txt. See the License for the
-specific language governing permissions and limitations under the
-License.  When distributing the software, include this License Header
-Notice in each file and include the License files at
-/cddl-1.0.txt and /gpl-3.0.txt. If applicable, add the following below the
-License Header, with the fields enclosed by brackets [] replaced by
-your own identifying information:
-"Portions Copyrighted [year] [name of copyright owner]"
+ The contents of this file are subject to the terms of either the GNU
+ General Public License Version 3 only ("GPL") or the Common
+ Development and Distribution License("CDDL") (collectively, the
+ "License"). You may not use this file except in compliance with the
+ License. You can obtain a copy of the License at
+ http://gephi.org/about/legal/license-notice/
+ or /cddl-1.0.txt and /gpl-3.0.txt. See the License for the
+ specific language governing permissions and limitations under the
+ License.  When distributing the software, include this License Header
+ Notice in each file and include the License files at
+ /cddl-1.0.txt and /gpl-3.0.txt. If applicable, add the following below the
+ License Header, with the fields enclosed by brackets [] replaced by
+ your own identifying information:
+ "Portions Copyrighted [year] [name of copyright owner]"
 
-If you wish your version of this file to be governed by only the CDDL
-or only the GPL Version 3, indicate your decision by adding
-"[Contributor] elects to include this software in this distribution
-under the [CDDL or GPL Version 3] license." If you do not indicate a
-single choice of license, a recipient has the option to distribute
-your version of this file under either the CDDL, the GPL Version 3 or
-to extend the choice of license to its licensees as provided above.
-However, if you add GPL Version 3 code and therefore, elected the GPL
-Version 3 license, then the option applies only if the new code is
-made subject to such option by the copyright holder.
+ If you wish your version of this file to be governed by only the CDDL
+ or only the GPL Version 3, indicate your decision by adding
+ "[Contributor] elects to include this software in this distribution
+ under the [CDDL or GPL Version 3] license." If you do not indicate a
+ single choice of license, a recipient has the option to distribute
+ your version of this file under either the CDDL, the GPL Version 3 or
+ to extend the choice of license to its licensees as provided above.
+ However, if you add GPL Version 3 code and therefore, elected the GPL
+ Version 3 license, then the option applies only if the new code is
+ made subject to such option by the copyright holder.
 
-Contributor(s):
+ Contributor(s):
 
-Portions Copyrighted 2011 Gephi Consortium.
-*/
+ Portions Copyrighted 2011 Gephi Consortium.
+ */
 package org.gephi.recast_manipulator;
 
+import java.sql.Time;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JPanel;
 import org.gephi.data.attributes.api.AttributeColumn;
@@ -167,6 +171,8 @@ public class RecastManipulatorUI extends javax.swing.JPanel implements Manipulat
         recastButton = new javax.swing.JButton();
         forceRecastCheckBox = new javax.swing.JCheckBox();
         replaceOriginalButton = new javax.swing.JButton();
+        logScrollPane = new javax.swing.JScrollPane();
+        logTextArea = new javax.swing.JTextArea();
 
         columnLabel.setText(org.openide.util.NbBundle.getMessage(RecastManipulatorUI.class, "RecastManipulatorUI.columnLabel.text")); // NOI18N
 
@@ -210,22 +216,18 @@ public class RecastManipulatorUI extends javax.swing.JPanel implements Manipulat
             }
         });
 
+        logTextArea.setColumns(20);
+        logTextArea.setRows(5);
+        logScrollPane.setViewportView(logTextArea);
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(logScrollPane)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(autoButton)
-                            .addComponent(replaceOriginalButton)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(recastButton)
-                                .addGap(18, 18, 18)
-                                .addComponent(forceRecastCheckBox)))
-                        .addGap(0, 16, Short.MAX_VALUE))
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(convertToLabel)
@@ -236,12 +238,22 @@ public class RecastManipulatorUI extends javax.swing.JPanel implements Manipulat
                             .addComponent(columnComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(currentTypeShowLabel)
                             .addComponent(convertToComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addContainerGap())))
+                        .addContainerGap())
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(recastButton)
+                                .addGap(18, 18, 18)
+                                .addComponent(forceRecastCheckBox)
+                                .addGap(18, 18, 18)
+                                .addComponent(replaceOriginalButton))
+                            .addComponent(autoButton))
+                        .addGap(0, 144, Short.MAX_VALUE))))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(columnLabel)
                     .addComponent(columnComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -256,15 +268,29 @@ public class RecastManipulatorUI extends javax.swing.JPanel implements Manipulat
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(forceRecastCheckBox)
-                    .addComponent(recastButton))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 8, Short.MAX_VALUE)
-                .addComponent(replaceOriginalButton)
+                    .addComponent(recastButton)
+                    .addComponent(replaceOriginalButton))
+                .addGap(18, 18, 18)
+                .addComponent(autoButton)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(autoButton))
+                .addComponent(logScrollPane, javax.swing.GroupLayout.PREFERRED_SIZE, 128, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
     }// </editor-fold>//GEN-END:initComponents
+    private DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
 
-    private void columnDublicatedEvent(String titleOld, String titleNew, String titleLabel) {
+    private void addMessageToLog(String message) {
+        logTextArea.append(dateFormat.format(new Date()) + " : " + message);
+    }
+
+    private void columnNotSingleDublicatedEvent(String titleOld, String titleNew, String titleLabel) {
+        addMessageToLog(titleOld + " has been sucessfully recasted to " + titleNew + "\n");
+        removedDuringAutoColumns.add(titleOld);
+        addedDuringAutoColumns.add(titleNew);
+        labelDuringAutoColumns.add(titleLabel);
+    }
+
+    private void columnSingleDublicatedEvent(String titleOld, String titleNew, String titleLabel) {
+        addMessageToLog(titleOld + " has been recasted to " + titleNew + "\n");
         //called only when single column was dublicated, so we should delete auto-recasting history
         if (lastOperationWasAutoRecast) {
             lastOperationWasAutoRecast = false;
@@ -279,31 +305,56 @@ public class RecastManipulatorUI extends javax.swing.JPanel implements Manipulat
                 Lookup.getDefault().lookup(AttributeColumnsController.class).canDeleteColumn(getColumnByCheckBoxName(titleLabel)));
         replaceOriginalButton.setText("Replace " + lastColumnBeingDuplicated + " with " + lastColumnThatDuplicate);
     }
+
+    private void columnReplacedEvent(String titleOld, String titleNew) {
+        addMessageToLog(titleOld + " has been replaced by " + titleNew + ", " + titleNew + " has been deleted");
+    }
+
+    private void columnNotReplacedEvent(String titleOld, String titleNew, String reason) {
+        addMessageToLog(titleOld + "hasn't been replaced by " + titleNew + " because " + reason);
+    }
+
+    private void columnNotDublicatedEvent(String titleOld, String titleNew, String titleLabel, String reason) {
+        addMessageToLog(titleOld + " can't be recasted to " + titleNew + " because " + reason);
+    }
+
     private void recastButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_recastButtonActionPerformed
         String title = columnComboBox.getSelectedItem().toString();
         boolean duplicated = false;
         for (AttributeType type : ((ConvertToComboBoxType) (convertToComboBox.getSelectedItem())).type) {
+            StringBuilder reason = new StringBuilder();
             if (RecastImplementation.possibleToConvertColumn(getTableByCheckBoxName(title),
-                    getColumnByCheckBoxName(title), type)) {
+                    getColumnByCheckBoxName(title), type, reason)) {
                 if (RecastImplementation.recast(getTableByCheckBoxName(title),
-                        getColumnByCheckBoxName(title), type, getColumnByCheckBoxName(title).getTitle() + type.toString())) {
-                    columnDublicatedEvent(getColumnByCheckBoxName(title).getTitle(),
+                        getColumnByCheckBoxName(title), type,
+                        getColumnByCheckBoxName(title).getTitle() + type.toString(), reason)) {
+                    columnSingleDublicatedEvent(getColumnByCheckBoxName(title).getTitle(),
                             getColumnByCheckBoxName(title).getTitle() + type.toString(), title);
                     duplicated = true;
                     break;
                 }
             }
+            if (!duplicated) {
+                columnNotDublicatedEvent(getColumnByCheckBoxName(title).getTitle(),
+                        getColumnByCheckBoxName(title).getTitle() + type.toString(), title, reason.toString());
+            }
         }
         //if we haven't duplicated column and recast is forced, try to convert without check
         if (forceRecastCheckBox.isSelected() && !duplicated) {
             for (AttributeType type : ((ConvertToComboBoxType) (convertToComboBox.getSelectedItem())).type) {
+                StringBuilder reason = new StringBuilder();
                 //no possibleToConvert check, because of forceRecastCheckBox, use more euristic AttributeType.parse()
                 if (RecastImplementation.recast(getTableByCheckBoxName(title),
-                        getColumnByCheckBoxName(title), type, getColumnByCheckBoxName(title).getTitle() + type.toString())) {
-                    columnDublicatedEvent(getColumnByCheckBoxName(title).getTitle(),
+                        getColumnByCheckBoxName(title), type,
+                        getColumnByCheckBoxName(title).getTitle() + type.toString(), reason)) {
+                    columnSingleDublicatedEvent(getColumnByCheckBoxName(title).getTitle(),
                             getColumnByCheckBoxName(title).getTitle() + type.toString(), title);
                     duplicated = true;
                     break;
+                }
+                if (!duplicated) {
+                    columnNotDublicatedEvent(getColumnByCheckBoxName(title).getTitle(),
+                            getColumnByCheckBoxName(title).getTitle() + type.toString(), title, reason.toString());
                 }
             }
         }
@@ -315,17 +366,21 @@ public class RecastManipulatorUI extends javax.swing.JPanel implements Manipulat
             String title = columnComboBox.getItemAt(i).toString();
             //recast only string type
             if (getColumnByCheckBoxName(title).getType() == AttributeType.STRING) {
+                addMessageToLog(title + " has string type and will be recasted");
                 for (AttributeType type : suitableClass) {
+                    StringBuilder reason = new StringBuilder();
                     if (RecastImplementation.possibleToConvertColumn(getTableByCheckBoxName(title),
-                            getColumnByCheckBoxName(title), type)) {
+                            getColumnByCheckBoxName(title), type, reason)) {
                         if (RecastImplementation.recast(getTableByCheckBoxName(title),
-                                getColumnByCheckBoxName(title), type, getColumnByCheckBoxName(title).getTitle() + type.toString())) {
-                            removedDuringAutoColumns.add(getColumnByCheckBoxName(title).getTitle());
-                            addedDuringAutoColumns.add(getColumnByCheckBoxName(title).getTitle() + type.toString());
-                            labelDuringAutoColumns.add(title);
+                                getColumnByCheckBoxName(title), type,
+                                getColumnByCheckBoxName(title).getTitle() + type.toString(), reason)) {
+                            columnNotSingleDublicatedEvent(getColumnByCheckBoxName(title).getTitle(),
+                                    getColumnByCheckBoxName(title).getTitle() + type.toString(), title);
                             break;
                         }
                     }
+                    columnNotDublicatedEvent(getColumnByCheckBoxName(title).getTitle(),
+                            getColumnByCheckBoxName(title).getTitle() + type.toString(), title, reason.toString());
                 }
             }
         }
@@ -361,11 +416,22 @@ public class RecastManipulatorUI extends javax.swing.JPanel implements Manipulat
     private void replaceOriginalButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_replaceOriginalButtonActionPerformed
         if (!lastOperationWasAutoRecast) //just one column
         {
-            RecastImplementation.move(getTableByCheckBoxName(lastColumnLabel), lastColumnBeingDuplicated, lastColumnThatDuplicate);
-        } else { 
+            StringBuilder reason = new StringBuilder();
+            if (RecastImplementation.move(getTableByCheckBoxName(lastColumnLabel), lastColumnBeingDuplicated, lastColumnThatDuplicate, reason)) {
+                columnReplacedEvent(lastColumnBeingDuplicated, lastColumnThatDuplicate);
+            } else {
+                columnNotReplacedEvent(lastColumnBeingDuplicated, lastColumnThatDuplicate, reason.toString());
+            }
+        } else {
             for (int i = 0; i < removedDuringAutoColumns.size(); i++) {
-                RecastImplementation.move(getTableByCheckBoxName(labelDuringAutoColumns.get(i)),
-                        removedDuringAutoColumns.get(i), addedDuringAutoColumns.get(i));
+                StringBuilder reason = new StringBuilder();
+                if (RecastImplementation.move(getTableByCheckBoxName(labelDuringAutoColumns.get(i)),
+                        removedDuringAutoColumns.get(i), addedDuringAutoColumns.get(i), reason)) {
+                    columnReplacedEvent(removedDuringAutoColumns.get(i), addedDuringAutoColumns.get(i));
+                } else {
+                    columnNotReplacedEvent(removedDuringAutoColumns.get(i), addedDuringAutoColumns.get(i), 
+                            reason.toString());
+                }
             }
         }
         initColumnComboBox();
@@ -379,6 +445,8 @@ public class RecastManipulatorUI extends javax.swing.JPanel implements Manipulat
     private javax.swing.JLabel currentTypeLabel;
     private javax.swing.JLabel currentTypeShowLabel;
     private javax.swing.JCheckBox forceRecastCheckBox;
+    private javax.swing.JScrollPane logScrollPane;
+    private javax.swing.JTextArea logTextArea;
     private javax.swing.JButton recastButton;
     private javax.swing.JButton replaceOriginalButton;
     // End of variables declaration//GEN-END:variables
