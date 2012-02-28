@@ -113,7 +113,7 @@ public class RecastManipulatorUI extends javax.swing.JPanel implements Manipulat
                 new AttributeType[]{AttributeType.FLOAT}));
 
         convertToOption.add(new ConvertToComboBoxType("Double(more accurate decimal fraction)",
-                new AttributeType[]{AttributeType.BOOLEAN}));
+                new AttributeType[]{AttributeType.DOUBLE}));
 
         convertToOption.add(new ConvertToComboBoxType("BigDecimal(" + "unlimited decimal)",
                 new AttributeType[]{AttributeType.BIGDECIMAL}));
@@ -253,7 +253,7 @@ public class RecastManipulatorUI extends javax.swing.JPanel implements Manipulat
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(columnLabel)
                     .addComponent(columnComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -267,13 +267,13 @@ public class RecastManipulatorUI extends javax.swing.JPanel implements Manipulat
                     .addComponent(convertToComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(forceRecastCheckBox)
                     .addComponent(recastButton)
+                    .addComponent(forceRecastCheckBox)
                     .addComponent(replaceOriginalButton))
                 .addGap(18, 18, 18)
                 .addComponent(autoButton)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(logScrollPane, javax.swing.GroupLayout.PREFERRED_SIZE, 128, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(logScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 152, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
     private DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
@@ -307,11 +307,11 @@ public class RecastManipulatorUI extends javax.swing.JPanel implements Manipulat
     }
 
     private void columnReplacedEvent(String titleOld, String titleNew) {
-        addMessageToLog(titleOld + " has been replaced by " + titleNew + ", " + titleNew + " has been deleted");
+        addMessageToLog(titleOld + " has been replaced by " + titleNew + ", " + titleNew + " has been deleted\n");
     }
 
     private void columnNotReplacedEvent(String titleOld, String titleNew, String reason) {
-        addMessageToLog(titleOld + "hasn't been replaced by " + titleNew + " because " + reason);
+        addMessageToLog(titleOld + " hasn't been replaced by " + titleNew + " because " + reason);
     }
 
     private void columnNotDublicatedEvent(String titleOld, String titleNew, String titleLabel, String reason) {
@@ -366,7 +366,7 @@ public class RecastManipulatorUI extends javax.swing.JPanel implements Manipulat
             String title = columnComboBox.getItemAt(i).toString();
             //recast only string type
             if (getColumnByCheckBoxName(title).getType() == AttributeType.STRING) {
-                addMessageToLog(title + " has string type and will be recasted");
+                addMessageToLog(title + " has string type and will be recasted\n");
                 for (AttributeType type : suitableClass) {
                     StringBuilder reason = new StringBuilder();
                     if (RecastImplementation.possibleToConvertColumn(getTableByCheckBoxName(title),
@@ -463,7 +463,7 @@ public class RecastManipulatorUI extends javax.swing.JPanel implements Manipulat
 
     @Override
     public String getDisplayName() {
-        return "Recast manupulator";
+        return "Recast manipulator";
     }
 
     @Override
@@ -473,7 +473,7 @@ public class RecastManipulatorUI extends javax.swing.JPanel implements Manipulat
 
     @Override
     public boolean isModal() {
-        return true;
+        return false;
     }
 }
 

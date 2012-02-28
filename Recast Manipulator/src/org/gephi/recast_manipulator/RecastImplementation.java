@@ -83,10 +83,12 @@ public class RecastImplementation {
                     BigInteger isBigInteger = new BigInteger(formatIntType(value.toString()));
                     return true;
                 case CHAR:
+                    if (value.toString().length() != 1)
+                        error.append(value.toString()).append(" should be 1 character long\n");
                     return (value.toString().length() == 1);
                 case BOOLEAN:
                     if (!value.toString().equalsIgnoreCase("true") && !value.toString().equalsIgnoreCase("false"))
-                        error.append(value.toString()).append(" should be \'true\' or \'false\'");
+                        error.append(value.toString()).append(" should be \'true\' or \'false\'\n");
                     return (value.toString().equalsIgnoreCase("true") || value.toString().equalsIgnoreCase("false"));
                 case BYTE:
                     Byte.parseByte(formatIntType(value.toString()));
@@ -158,7 +160,7 @@ public class RecastImplementation {
             }
         }
         if (nullTable(controller.getTableAttributeRows(table), column.getId())) {
-            error.append("table is empty\n");
+            error.append("column is empty\n");
             return false;
         }
         return true;
@@ -184,16 +186,16 @@ public class RecastImplementation {
             return true;
         }
         if (!table.hasColumn(newTitle)) {
-            error.append(newTitle).append(" doesn't exist");
+            error.append(newTitle).append(" doesn't exist\n");
         }
         if (!table.hasColumn(oldTitle)) {
-            error.append(oldTitle).append(" doesn't exist");
+            error.append(oldTitle).append(" doesn't exist\n");
         }
         if (!controller.canDeleteColumn(table.getColumn(newTitle))) {
-            error.append("Impossible to delete ").append(newTitle);
+            error.append("Impossible to delete ").append(newTitle).append("\n");
         }
         if (!controller.canDeleteColumn(table.getColumn(oldTitle))) {
-            error.append("Impossible to delete ").append(oldTitle);
+            error.append("Impossible to delete ").append(oldTitle).append("\n");
         }
         return false;
     }

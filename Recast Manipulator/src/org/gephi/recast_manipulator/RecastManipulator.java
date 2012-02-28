@@ -60,7 +60,7 @@ public class RecastManipulator implements PluginGeneralActionsManipulator{
 
     @Override
     public String getName() {
-        return "Re-cast column";
+        return "Recast column";
     }
 
     @Override
