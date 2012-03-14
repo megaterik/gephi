@@ -80,7 +80,7 @@ public class RecastManipulator implements PluginGeneralActionsManipulator{
 
     @Override
     public int getType() {
-        return 100;
+        return 200;
     }
 
     @Override
